@@ -1,0 +1,66 @@
+#use <conio>
+#use <util>
+
+pixel_t[] rotate(pixel_t[] pixels, int width, int height)
+//@requires is_valid_imagesize(width, height);
+//@requires \length(pixels) == width*height;
+//@requires width == height;
+//@ensures \length(\result) == 4*width*height;
+{
+  pixel_t[] rot_arr = alloc_array(pixel_t, 4*width*height);
+  int rot_len = 2*width;  //@assert 2*width == 2*height;
+  int pos = 0;
+  int index = 0;
+  int cur_row = 0;
+  int cur_col = 0;
+  int new_row = 0;
+  int new_col = 0;
+
+  for (int i = 0; i < rot_len*rot_len; i++)
+  //@loop_invariant 0 <= i && i <= rot_len*rot_len;
+  //@loop_invariant 0 <= cur_col && cur_col < rot_len;
+  //@loop_invariant 0 <= cur_row && cur_row < rot_len;
+  {
+    cur_row = get_row(i, rot_len, rot_len);
+    cur_col = get_column(i, rot_len, rot_len);
+
+    //top right (original)
+    if (cur_row >= 0 && cur_row < height &&
+        cur_col >= width && cur_col < rot_len)
+    {
+      pos = get_index(cur_row, cur_col-width, width, height);
+      rot_arr[i] = pixels[pos];
+    }
+
+    //top left (rotate 90 to left)
+    else if (cur_row >= 0 && cur_row < height &&
+             cur_col >= 0 && cur_col < width) {
+      pos = get_index(cur_row, cur_col, width, height);
+      new_row = get_column(pos, width, height);
+      new_col = width-1-get_row(pos, width, height);
+      index = get_index(new_row, new_col, width, height);
+      rot_arr[i] = pixels[index];
+    }
+
+    //bottom left (horizontal flip)
+    else if (cur_row >= height && cur_row < rot_len &&
+             cur_col >= 0 && cur_col < width) {
+      pos = get_index(cur_row-height, cur_col, width, height);
+      new_row = height-1-get_row(pos, width, height);
+      new_col = width-1-get_column(pos, width, height);
+      index = get_index(new_row, new_col, width, height);
+      rot_arr[i] = pixels[index];
+    }
+
+    //bottom right (rotate 90 to right)
+    else if (cur_row >= height && cur_row < rot_len &&
+             cur_col >= width && cur_col < rot_len) {
+      pos = get_index(cur_row-height, cur_col-width, width, height);
+      new_row = height-1-get_column(pos, width, height);
+      new_col = get_row(pos, width, height);
+      index = get_index(new_row, new_col, width, height);
+      rot_arr[i] = pixels[index];
+    }
+  }
+  return rot_arr;
+}

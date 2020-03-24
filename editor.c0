@@ -1,0 +1,106 @@
+/*
+ * Augment doubly linked lists with row and column information.
+ *
+ * 15-122 Principles of Imperative Computation */
+
+/*** Interface ***/
+
+typedef struct editor_header editor;
+struct editor_header {
+  tbuf* buffer;
+  int row;
+  int col;
+};
+
+bool is_editor(editor* E)
+{
+  if (E == NULL) return false;
+  if (!is_tbuf(E->buffer)) return false;
+  if (E->row != tbuf_row(E->buffer)) return false;
+  if (E->col != tbuf_col(E->buffer)) return false;
+  return true;
+}
+
+editor* editor_new()                   /* Creates a new, empty text buffer */
+//@ensures is_editor(\result);
+{
+  editor* E = alloc(editor);
+  E->buffer = tbuf_new();
+  E->row = tbuf_row(E->buffer);
+  E->col = tbuf_col(E->buffer);
+  return E;
+}
+
+void editor_forward(editor* E)         /* Moves the cursor forward (right) */
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+  if (E->buffer->cursor != E->buffer->end) {
+    if (E->buffer->cursor->data == '\n') {
+      E->row++;
+      E->col = 0;
+    }
+    else if (E->buffer->cursor->data != '\n') {
+      E->col++;
+    }
+    tbuf_forward(E->buffer);
+  }
+}
+
+void editor_backward(editor* E)        /* Moves the cursor backward (left) */
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+  if (E->buffer->cursor != E->buffer->start->next) {
+    tbuf_backward(E->buffer);
+    if (E->buffer->cursor->data == '\n') {
+      E->row--;
+      E->col = tbuf_col(E->buffer);
+    }
+    else if (E->buffer->cursor->data != '\n') {
+      E->col--;
+    }
+  }
+}
+
+void editor_insert(editor* E, char c)  /* Insert a character before cursor */
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+  if (E->buffer->cursor != E->buffer->start) {
+    tbuf_insert(E->buffer, c);
+    if (c == '\n') {
+      E->row++;
+      E->col = 0;
+    }
+    if (c != '\n') {
+      E->col++;
+    }
+  }
+}
+
+void editor_delete(editor* E)          /* Remove character before cursor   */
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+  if (E->buffer->cursor != E->buffer->start &&
+      E->buffer->cursor->prev != E->buffer->start &&
+      E->buffer->start->next != E->buffer->end) {
+    tbuf_delete(E->buffer);
+  }
+  E->row = tbuf_row(E->buffer);
+  E->col = tbuf_col(E->buffer);
+}
+
+//void find_row(editor* E)
+//{
+//  int row = E->row;
+//  dll* cur_save = E->buffer->cursor;
+//  while (cur_save != B->end) {
+//    if (cur_save->
+//}
+
+void editor_up(editor* E);             /* Moves the cursor up              */
+void editor_down(editor* E);           /* Moves the cursor down            */
+
+/*** Implementation ***/

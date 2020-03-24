@@ -1,0 +1,99 @@
+int main() {
+
+  int score = 100;
+
+  bloom_t A = bloom_new(1);
+  assert(A != NULL);
+  bloom_t B = bloom_new(2);
+  assert(B != NULL);
+  bloom_t C = bloom_new(10);
+  assert(C != NULL);
+
+  //all bloom_t empty
+  if (bloom_contains(A, "a") == true) score = score - 4;
+  assert(A != NULL);
+  if (bloom_contains(A, " ") == true) score = score - 4;
+  if (bloom_contains(B, "a") == true) score = score - 4;
+  assert(B != NULL);
+  if (bloom_contains(B, "?") == true) score = score - 4;
+  if (bloom_contains(C, "a") == true) score = score - 4;
+  assert(C != NULL);
+  if (bloom_contains(C, "  ") == true) score = score - 4;
+
+  //1/1 full for A
+  assert(A != NULL);
+  bloom_add(A, "a");
+  assert(bloom_contains(A, "a") == true);
+  bloom_t D = bloom_new(1);
+  assert(D != NULL);
+  assert(bloom_contains(A, "a") == true);
+  assert(A != NULL);
+  if (bloom_contains(A, "A") == true) score = score - 4;
+  assert(A != NULL);
+
+  //1/2 full for B
+  assert(B != NULL);
+  bloom_add(B, "ab");
+  assert(bloom_contains(B, "ab") == true);
+  //2/2 full for B
+  assert(B != NULL);
+  bloom_add(B, " ");
+  assert(bloom_contains(B, "ab") == true);
+  assert(bloom_contains(B, " ") == true);
+  assert(B != NULL);
+  if (bloom_contains(B, "  ") == true) score = score - 4;
+  if (bloom_contains(B, "a b") == true) score = score - 4;
+  assert(B != NULL);
+
+  //1/10 full for C
+  assert(C != NULL);
+  bloom_add(C, "a,b");
+  assert(bloom_contains(C, "a,b") == true);
+  assert(C != NULL);
+  if (bloom_contains(C, "A") == true) score = score - 4;
+  if (bloom_contains(C, "a") == true) score = score - 4;
+  if (bloom_contains(C, "b") == true) score = score - 4;
+  //2/10 full for C
+  assert(C != NULL);
+  bloom_add(C, "b");
+  assert(bloom_contains(C, "a,b") == true);
+  assert(bloom_contains(C, "b") == true);
+  assert(C != NULL);
+  if (bloom_contains(C, "B") == true) score = score - 4;
+  //3/10 full for C
+  assert(C != NULL);
+  bloom_add(C, "hi i am a bug");
+  assert(bloom_contains(C, "hi i am a bug") == true);
+  assert(C != NULL);
+  if (bloom_contains(C, "hi") == true) score = score - 4;
+  if (bloom_contains(C, "hi i am") == true) score = score - 4;
+  if (bloom_contains(C, "i am a bug") == true) score = score - 4;
+  //4/10 full for C
+  assert(C != NULL);
+  bloom_add(C, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  assert(bloom_contains(C, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == true);
+  assert(C != NULL);
+  if (bloom_contains(C, "A") == true) score = score - 4;
+  if (bloom_contains(C, "ABC") == true) score = score - 4;
+  if (bloom_contains(C, " ") == true) score = score - 4;
+  //5/10 full for C
+  assert(C != NULL);
+  bloom_add(C, "? ");
+  assert(C != NULL);
+  assert(bloom_contains(C, "? ") == true);
+  assert(bloom_contains(C, "a,b") == true);
+  assert(bloom_contains(C, "b") == true);
+  assert(bloom_contains(C, "hi i am a bug") == true);
+  assert(bloom_contains(C, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == true);
+  assert(C != NULL);
+  assert(bloom_contains(B, "ab") == true);
+  assert(bloom_contains(B, " ") == true);
+  //6/10 full for C
+  bloom_add(C, "b");
+  assert(bloom_contains(C, "b") == true);
+
+  if (score == 24) score = 0;
+
+  return score;
+
+}

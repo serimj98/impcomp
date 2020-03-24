@@ -1,0 +1,107 @@
+#use <parse>
+#use <string>
+#use <util>
+
+//modified code from recitation on stacks and queues
+int stack_len(istack_t S)
+//@requires S != NULL;
+{
+  if (istack_empty(S)) {
+    return 0;
+  }
+  int x = ipop(S);
+  int i = stack_len(S);
+  i++;
+  ipush(S, x);
+  return i;
+}
+
+//modified code from lecture on contracts
+int POW(int x, int y)
+//@requires y >= 0;
+{
+  if (y == 0) {
+    return 1;
+  }
+  else {
+    return x*POW(x, y-1);
+  }
+}
+
+int power(int x, int y)
+//@requires y >= 0;
+//@ensures \result == POW(x,y);
+{
+  int r = 1;
+  int b = x;
+  int e = y;
+  while (e > 0)
+  //@loop_invariant e >= 0;
+  //@loop_invariant r*POW(b,e) == POW(x,y);
+  {
+    if (e%2 == 1) {
+      r = b*r;
+    }
+    b = b*b;
+    e = e/2;
+  }
+  //@assert e == 0;
+  return r;
+}
+
+void eval(istack_t S, queue_t Q)
+//@requires S != NULL && Q != NULL;
+//@ensures queue_empty(Q);
+{
+  while (!queue_empty(Q)) {
+    string tok = deq(Q);
+    if (parse_int(tok, 10) != NULL) {  //int
+      int tok_int = *parse_int(tok, 10);
+      ipush(S, tok_int);
+    }
+    else if (parse_int(tok, 10) == NULL) {  //char
+      if (stack_len(S) < 2) {
+        error("!Stack is too short for operation!");
+      }
+      else {
+        int y = ipop(S);
+        int x = ipop(S);
+        if (string_equal(tok,"+")) {
+          int new = x + y;
+          ipush(S, new);
+        }
+        if (string_equal(tok, "-")) {
+          int new = x - y;
+          ipush(S, new);
+        }
+        if (string_equal(tok, "*")) {
+          int new = x*y;
+          ipush(S, new);
+        }
+        if (string_equal(tok, "/")) {
+          if (y == 0) {
+            error("!Division by zero!");
+          }
+          else if (x == int_min() && y == -1) {
+            error("!Division of int_min() by -1!");
+          }
+          else {
+            int new = x/y;
+            ipush(S, new);
+          }
+        }
+        if (string_equal(tok, "**")) {
+          if (y < 0) {
+            error("!Power to a negative value!");
+          }
+          int new = power(x, y);
+          ipush(S, new);
+        }
+        if (string_equal(tok, "bogus")) {
+          error("!Not a valid input!");
+        }
+      }
+    }
+  }
+  return ;
+}

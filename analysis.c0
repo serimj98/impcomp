@@ -1,0 +1,108 @@
+#use <args>
+#use <conio>
+#use <string>
+
+//is_in algorithm for integers adapted from lecture code
+bool is_in_int(int x, int[] A, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= \length(A);
+{
+  if (lo == hi) return false;
+  return A[lo] == x || is_in_int(x,A,lo+1,hi);
+}
+
+int main() {
+  args_t args = args_parse();
+  int argc = args -> argc;
+  string[] argv = args -> argv;
+
+  bundle_t vocab_read = read_words(argv[0]);
+  string[] vocab = string_bundle_array(vocab_read);
+  int vocab_len = string_bundle_length(vocab_read);
+
+  bundle_t cor_read = read_words(argv[1]);
+  string[] corpus = string_bundle_array(cor_read);
+  int cor_len = string_bundle_length(cor_read);
+
+  //Part 1
+
+  int[] freq = alloc_array(int, vocab_len); //set all freq to 0
+  int temp = count_vocab(vocab, freq, vocab_len, argv[1], true);
+  sort_by_freq(vocab, freq, vocab_len);
+
+  print("The four most common words in the text corpus are: ");
+  print("\n");
+
+  for (int i=0; i<4; i++)
+  //@loop_invariant i >= 0 && i <= 4;
+  {
+    printint(i+1);
+    print(". ");
+    print(vocab[vocab_len-i-1]);
+    print(" (appears ");
+    printint(freq[vocab_len-i-1]);
+    print(" times)");
+    print("\n");
+  }
+  print("\n");
+
+  //Part 2
+
+  print("These words appeared 128 times in the text corpus: ");
+  print("\n");
+
+  string[] exact = alloc_array(string, vocab_len);
+  int index = 0;
+  for (int j=0; j<vocab_len; j++)
+  //@loop_invariant j >= 0 && j <= vocab_len;
+  {
+    if (freq[j] == 128) {
+      exact[index] = vocab[j];
+      index++;
+    }
+  }
+
+  for (int k=0; k<=index; k++)
+  //@loop_invariant k >= 0 && k <= index + 1;
+  {
+    print(exact[k]);
+    print("\n");
+  }
+
+  //Part 3
+
+  print("There are ");
+
+  int count = 0;
+  for (int a=0; a<vocab_len; a++)
+  //@loop_invariant a >= 0 && a <= vocab_len;
+  {
+    if (freq[a] == 1) {
+      count++;
+    }
+  }
+
+  printint(count);
+  print(" singletons in the corpus.");
+  print("\n");
+  print("\n");
+
+  //Part 4
+
+  print("There are ");
+
+  int[] freq_count = alloc_array(int, vocab_len);
+  int distinct = 0;
+  for (int b=0; b<vocab_len; b++)
+  //@loop_invariant b >= 0 && b <= vocab_len;
+  {
+    if (is_in_int(freq[b], freq_count, 0, vocab_len) == false)
+    {
+      freq_count[distinct] = freq[b];
+      distinct++;
+    }
+  }
+
+  printint(distinct);
+  print(" distinct frequency counts in the corpus.");
+  return 0;
+}

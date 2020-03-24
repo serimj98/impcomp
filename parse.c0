@@ -1,0 +1,84 @@
+//modified code from lecture on stacks and queues
+stack_t stack_copy(stack_t S) {
+  stack_t tmp = stack_new();
+  stack_t copy = stack_new();
+  while (!stack_empty(S))
+    push(tmp, pop(S));
+  //@assert stack_empty(S);
+  while (!stack_empty(tmp)) {
+    string x = pop(tmp);
+    push(S, x);
+    push(copy, x);
+  }
+  return copy;
+}
+
+bool is_precstack(dict_t D, stack_t S)
+//@requires D != NULL && S != NULL;
+{
+  if (stack_empty(S)) return true;
+  //@assert !stack_empty(S);
+  stack_t tmp = stack_copy(S);
+  //@assert !stack_empty(tmp);
+  string cur = pop(tmp);
+  int n = dict_lookup(D, cur);
+  while (!stack_empty(tmp)) {
+    string next = pop(tmp);
+    int m = dict_lookup(D, next);
+    if (n < m) return false;
+    cur = next;
+    n = m;
+  }
+  //@assert stack_empty(tmp);
+  return true;
+}
+
+queue_t parse(dict_t D, queue_t input)
+//@requires D != NULL && input != NULL;
+//@ensures \result == NULL || queue_empty(input);
+{
+  stack_t S = stack_new();
+  queue_t output = queue_new();  //initializing two queues, one stack
+  if (queue_empty(input)) {
+    return NULL;
+  }
+  bool phase_int = true;
+  while (!queue_empty(input)) {  //deq-ing elements off input until empty
+    string input_tok = deq(input);
+    if (phase_int == true) {  //integer phase
+      enq(output, input_tok);
+      phase_int = false;
+    }
+    else if (phase_int == false) {  //operator phase
+      if (dict_lookup(D, input_tok) == -1) {
+        return NULL;  //not a valid operator
+      }
+      else if (!stack_empty(S)) {
+        string stack_tok = pop(S);
+        bool keep_looking = true;
+        if (dict_lookup(D, stack_tok) < dict_lookup(D, input_tok)) {
+          push(S, stack_tok);
+        }
+        while (dict_lookup(D, stack_tok) >= dict_lookup(D, input_tok)
+               && keep_looking == true) {
+          enq(output, stack_tok);
+          if (!stack_empty(S)) {
+            string next_tok = pop(S);
+            stack_tok = next_tok;
+          }
+          else if (stack_empty(S)) {
+            keep_looking = false;
+          }
+        }
+      }
+      push(S, input_tok);
+      phase_int = true;
+    }
+  }
+  while (!stack_empty(S)) {
+    string leftover = pop(S);
+    enq(output, leftover);
+  }
+  return output;
+}
+

@@ -1,0 +1,73 @@
+#use <string>
+
+typedef struct bloom_filter bloom;
+
+struct bloom_filter {
+  bool[] data;
+  int capacity;  // capacity == \length(data)
+};
+
+bool data_len(bloom* B) {
+  //@assert \length(B->data) == B->capacity;
+  return true;
+}
+
+bool is_bloom(bloom* B) {
+  return B != NULL && B->capacity > 0 && data_len(B);
+}
+
+bloom* bloom_new(int capacity)
+//@requires capacity > 0;
+//@ensures is_bloom(\result);
+{
+  bloom* B = alloc(bloom);
+  B->data = alloc_array(bool, capacity);
+  B->capacity = capacity;
+  return B;
+}
+
+int hash_mul31(string s) {
+  int len = string_length(s);
+  if (string_equal(s,"")) return 0;
+  int[] char_str = alloc_array(int, len);
+  for (int i = 0; i < len; i++) {
+    char val = string_charat(s, i);
+    int ord = char_ord(val);
+    char_str[i] = ord;
+  }
+  int sum = char_str[0];
+  for (int j = 1; j < len; j++) {
+    sum = sum*31 + char_str[j];
+  }
+  return sum;
+}
+
+bool bloom_contains(bloom* B, string x)
+//@requires B != NULL;
+//@requires is_bloom(B);
+{
+  int hash = hash_mul31(x) % B->capacity;
+  if (hash < 0) hash = -hash;
+  //@assert hash >= 0 && hash < B->capacity && \length(B->data) == B->capacity;
+  if (B->data[hash] == true) return true;
+  return false;
+}
+
+void bloom_add(bloom* B, string x)
+//@requires B != NULL;
+//@requires is_bloom(B);
+//@ensures is_bloom(B);
+//@ensures bloom_contains(B, x);
+{
+  int hash = hash_mul31(x) % B->capacity;
+  if (hash < 0) hash = -hash;
+  //@assert hash >= 0 && hash < B->capacity && \length(B->data) == B->capacity;
+  for (int i = 0; i < B->capacity; i++)
+  //@loop_invariant i >= 0 && i <= B->capacity;
+  {
+    //@assert i >= 0 && i < B->capacity;
+    if (i == hash) B->data[i] = true;
+  }
+}
+
+typedef bloom* bloom_t;

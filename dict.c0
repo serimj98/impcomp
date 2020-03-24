@@ -1,0 +1,148 @@
+/*
+ * Interface for dictionaries
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <conio>
+#use <parse>
+
+/* Implementation to dictionaries */
+typedef struct dict_header dict;
+/* insert your implementation code between HERE */
+
+struct dict_header {
+  string[] oper;
+  int[] prec;
+  int len;
+};
+
+int total_num_tok(string[] A, int n)
+//@requires \length(A) == n;
+{
+  int count = 0;
+  for (int i = 0; i < n; i++)
+  //@loop_invariant i >= 0 && i <= n;
+  {
+    int len = num_tokens(A[i]);
+    count = count + len;
+  }
+  return count;
+}
+
+string[] total_tok(string[] A, int n)
+//@requires \length(A) == n;
+{
+  int count = 0;
+  string[] res = alloc_array(string, total_num_tok(A, n));
+  for (int i = 0; i < n; i++)
+  //@loop_invariant i >= 0 && i <= n;
+  {
+    int len = num_tokens(A[i]);
+    string[] tok = parse_tokens(A[i]);
+    for (int j = 0; j < len; j++)
+    //@loop_invariant j >= 0 && j <= len;
+    {
+      res[count] = tok[j];
+      count++;
+    }
+  }
+  return res;
+}
+
+bool duplicate_tok(string[] total, string[] A, int n)
+//@requires \length(total) == total_num_tok(A, n);
+//@requires \length(A) == n;
+{
+  int len = total_num_tok(A, n);
+  for (int i = 0; i < len; i++)
+  //@loop_invariant i >= 0 && i <= len;
+  {
+    for (int j = 0; j < len; j++)
+    //@loop_invariant j >= 0 && j <= len;
+    {
+      if ((i != j) && (string_equal(total[i], total[j]))) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+dict* dict_new(string[] A, int n)
+//@requires \length(A) == n;
+//@requires is_infix_array(A, n);
+{
+  dict* D = alloc(dict);
+  D->oper = alloc_array(string, n);
+  D->prec = alloc_array(int, n);
+  D->len = n;
+
+  //implement dictionary
+  for (int i = 0; i < n; i++)
+  //@loop_invariant i >= 0 && i <= n;
+  {
+    D->oper[i] = A[i];
+    D->prec[i] = i;
+  }
+
+  //check for duplicate tokens
+  string[] total = total_tok(A, n);
+  if (duplicate_tok(total, A, n) == false) {
+    return NULL;
+  }
+  return D;
+}
+
+int search(string x, string[] A, int n)
+//@requires 0 <= n && n == \length(A);
+{
+  for (int i = 0; i < n; i++)
+  //@loop_invariant i >= 0 && i <= n;
+  {
+    if (string_equal(A[i], x)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int dict_lookup(dict* D, string oper)
+//@requires D != NULL;
+//@ensures \result >= -1;
+{
+  string[] A = D->oper;
+  int n = D->len;
+
+  for (int i = 0; i < n; i++)
+  //@loop_invariant i >= 0 && i <= n;
+  {
+    string[] tok = parse_tokens(A[i]);
+    int len = num_tokens(A[i]);
+    int res = search(oper, tok, len);
+    if (res >= 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+
+/* and HERE */
+typedef dict* dict_t;
+
+
+/* Interface to dictionaries (leave this alone) */
+
+// typedef ______* dict_t;
+
+// Returns NULL if the input array has the same operator twice
+dict_t dict_new(string[] A, int n)
+  /*@requires \length(A) == n; @*/
+  /*@requires is_infix_array(A, n); @*/ ;
+
+// Returns -1 if no definition is found
+int dict_lookup(dict_t D, string oper)
+  /*@requires D != NULL; @*/
+  /*@ensures \result >= -1; @*/ ;

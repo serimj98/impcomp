@@ -1,0 +1,54 @@
+int[] apply_mask(pixel_t[] pixels, int width, int height,
+                 int[] mask, int maskwidth)
+//@requires is_valid_imagesize(width, height);
+//@requires \length(pixels) == width*height;
+//@requires maskwidth > 0 && maskwidth%2 == 1;
+//@requires maskwidth*maskwidth == \length(mask);
+//@requires maskwidth <= int_max()/maskwidth;
+//@ensures \length(\result) == \length(pixels);
+{
+  int[] mask_arr = alloc_array(int, width*height);
+  int mask_mid = maskwidth/2;
+  int center = 0;
+  int mindex = 0;
+  int pos_row = 0;
+  int pos_col = 0;
+  int index = 0;
+  int avg_int = 0;
+  int red = 0;
+  int green = 0;
+  int blue = 0;
+  int sum = 0;
+
+  for (int row = 0; row < height; row++)
+  //@loop_invariant 0 <= row && row <= height;
+  {
+    for (int col = 0; col < width; col++)
+    //@loop_invariant 0 <= col && col <= width;
+    {
+      center = get_index(row, col, width, height);
+      sum = 0;
+      for (int mrow = 0; mrow < maskwidth; mrow++)
+      //@loop_invariant 0 <= mrow && mrow <= maskwidth;
+      {
+        for (int mcol = 0; mcol < maskwidth; mcol++)
+        //@loop_invariant 0 <= mcol && mcol <= maskwidth;
+        {
+          mindex = get_index(mrow, mcol, maskwidth, maskwidth);
+          pos_row = mrow - mask_mid + row;
+          pos_col = mcol - mask_mid + col;
+          if (is_valid_pixel(pos_row, pos_col, width, height)) {
+            index = get_index(pos_row, pos_col, width, height);
+            red = get_red(pixels[index]);
+            green = get_green(pixels[index]);
+            blue = get_blue(pixels[index]);
+            avg_int = (red + green + blue) / 3;
+            sum = sum + avg_int*mask[mindex];
+          }
+        }
+      }
+      mask_arr[center] = sum;
+    }
+  }
+  return mask_arr;
+}

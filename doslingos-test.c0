@@ -1,0 +1,113 @@
+#use <parse>
+
+int main() {
+
+  string corpus_A = "texts/scott_tweet.txt";
+  string corpus_B = "texts/scott_tweet_copy.txt";
+  string corpus_C = "texts/news_vocab_sorted.txt";
+  string corpus_D = "texts/shakespeare_copy.txt";
+  string corpus_E = "texts/empty_file.txt";
+
+  //count_vocab
+
+  string[] vocab_A = parse_tokens("is out");
+  int[] freq_A = parse_ints("1 1", 10);
+  assert(count_vocab(vocab_A, freq_A, 2, corpus_A, true) == 4);
+  assert(string_equal(vocab_A[0], "is"));
+  assert(string_equal(vocab_A[1], "out"));
+  assert(freq_A[0] == 2);
+  assert(freq_A[1] == 2);
+
+  int[] freq_A1 = parse_ints("10 0", 10);
+  assert(count_vocab(vocab_A, freq_A1, 2, corpus_A, false) == 4);
+  assert(string_equal(vocab_A[0], "is"));
+  assert(string_equal(vocab_A[1], "out"));
+  assert(freq_A1[0] == 11);
+  assert(freq_A1[1] == 1);
+
+  string[] vocab_B = parse_tokens("burrow his is of out phil");
+  int[] freq_B = parse_ints("0 0 0 0 0 0", 10);
+  assert(count_vocab(vocab_B, freq_B, 6, corpus_A, true) == 0);
+  assert(string_equal(vocab_B[0], "burrow"));
+  assert(string_equal(vocab_B[1], "his"));
+  assert(string_equal(vocab_B[2], "is"));
+  assert(string_equal(vocab_B[3], "of"));
+  assert(string_equal(vocab_B[4], "out"));
+  assert(string_equal(vocab_B[5], "phil"));
+  assert(freq_B[0] == 1);
+  assert(freq_B[1] == 1);
+  assert(freq_B[2] == 1);
+  assert(freq_B[3] == 1);
+  assert(freq_B[4] == 1);
+  assert(freq_B[5] == 1);
+
+  assert(count_vocab(vocab_B, freq_B, 6, corpus_B, false) == 0);
+  assert(freq_B[0] == 4);
+  assert(freq_B[1] == 2);
+  assert(freq_B[2] == 4);
+  assert(freq_B[3] == 2);
+  assert(freq_B[4] == 2);
+  assert(freq_B[5] == 5);
+
+  assert(count_vocab(vocab_A, freq_A, 2, corpus_B, true) == 9);
+  assert(freq_A[0] == 5);
+  assert(freq_A[1] == 3);
+
+  string[] vocab_C = parse_tokens("0 1000th opening openings slog slogan");
+  int[] freq_C = parse_ints("2 2 2 2 2 2", 10);
+  assert(count_vocab(vocab_C, freq_C, 6, corpus_C, true) == 45594);
+  assert(freq_C[0] == 3);
+  assert(freq_C[1] == 3);
+  assert(freq_C[2] == 3);
+  assert(freq_C[3] == 3);
+  assert(freq_C[4] == 3);
+  assert(freq_C[5] == 3);
+
+  string[] vocab_D = parse_tokens("apple banana carrot doslingos");
+  int[] freq_D = parse_ints("0 0 0 0", 10);
+  assert(count_vocab(vocab_D, freq_D, 4, corpus_E, false) == 0);
+  assert(freq_D[0] == 0);
+  assert(freq_D[1] == 0);
+  assert(freq_D[2] == 0);
+  assert(freq_D[3] == 0);
+
+  //sort_by_freq
+
+  string[] vocab_E = parse_tokens("is out");
+  int[] freq_E = parse_ints("1 1", 10);
+  sort_by_freq(vocab_E, freq_E, 2);
+  assert(string_equal(vocab_E[0], "is"));
+  assert(string_equal(vocab_E[1], "out"));
+  assert(freq_E[0] == 1);
+  assert(freq_E[1] == 1);
+
+  int[] freq_E1 = parse_ints("10 0", 10);
+  sort_by_freq(vocab_E, freq_E1, 2);
+  assert(string_equal(vocab_E[0], "out"));
+  assert(string_equal(vocab_E[1], "is"));
+  assert(freq_E1[0] == 0);
+  assert(freq_E1[1] == 10);
+
+  string[] vocab_E2 = parse_tokens("apple banana carrot doslingos");
+  int[] freq_E2 = parse_ints("4 3 2 1", 10);
+  sort_by_freq(vocab_E2, freq_E2, 4);
+  assert(string_equal(vocab_E2[0], "doslingos"));
+  assert(string_equal(vocab_E2[1], "carrot"));
+  assert(string_equal(vocab_E2[2], "banana"));
+  assert(string_equal(vocab_E2[3], "apple"));
+  assert(freq_E2[0] == 1);
+  assert(freq_E2[1] == 2);
+  assert(freq_E2[2] == 3);
+  assert(freq_E2[3] == 4);
+
+  string[] vocab_E3 = parse_tokens("apple banana carrot doslingos");
+  int[] freq_E3 = parse_ints("4 3 1 1", 10);
+  sort_by_freq(vocab_E3, freq_E3, 4);
+  assert(string_equal(vocab_E3[0], "carrot"));
+  assert(string_equal(vocab_E3[1], "doslingos"));
+  assert(string_equal(vocab_E3[2], "banana"));
+  assert(string_equal(vocab_E3[3], "apple"));
+
+
+  return 0;
+}

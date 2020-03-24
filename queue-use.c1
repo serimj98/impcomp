@@ -1,0 +1,55 @@
+bool even(void* k)
+//@requires \hastag(int*, k);
+{
+  if (k == NULL) return false;
+  if (*(int*)k >= 0 && *(int*)k % 2 == 0 && k != NULL) return true;
+  return false;
+}
+
+bool odd(void* k)
+//@requires \hastag(int*, k);
+{
+  if (k == NULL) return true;
+  if (*(int*)k > 0 && *(int*)k % 2 == 1) return true;
+  return false;
+}
+
+bool incr(void* k)
+//@requires \hastag(int*, k);
+{
+  if (k == NULL) return true;
+  int* inc = (int*)k;
+  *inc = *(int*)k + 1;
+  return true;
+}
+
+void* find_negative(void* accum, void* x)
+//@requires \hastag(int*, accum) && \hastag(int*, x);
+//@ensures \hastag(int*, \result);
+{
+  if (accum == NULL || *(int*)accum < 0) return accum;
+  else if (x != NULL && *(int*)x < 0) accum = x;
+  return accum;
+}
+
+void* copy(void* accum, void* x)
+//@requires \hastag(queue_t, accum) && \hastag(int*, x);
+//@ensures \hastag(queue_t, \result);
+{
+  enq((queue_t)accum, x);
+  return accum;
+}
+
+void* insert(void* k1, void* k2)
+//@requires k1 != NULL && k2 != NULL;
+//@requires \hastag(int*, k1) && \hastag(int*, k2);
+//@ensures \hastag(int*, \result);
+{
+  if (*(int*)k1 < *(int*)k2) {
+    int* val1 = (int*)k1;
+    int* val2 = (int*)k2;
+    k1 = (void*)val2;
+    k2 = (void*)val1;
+  }
+  return k1;
+}
